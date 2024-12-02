@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi[all]>=0.115.5",
+    "python-dotenv>=1.0.1",
 ]
 
 [dependency-groups]
@@ -50,6 +51,9 @@ lint.fixable = ["ALL"]
 lint.unfixable = []
 lint.preview = true
 
+# Allow unused variables when underscore-prefixed.
+lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
 # Exclude a variety of commonly ignored directories.
 exclude = [
     ".bzr",
@@ -80,6 +84,3 @@ exclude = [
     ]
 
 line-length = 100
-
-# Allow unused variables when underscore-prefixed.
-lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
