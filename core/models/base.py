@@ -1,20 +1,23 @@
-import os
+import datetime
 
-from dotenv import load_dotenv
-from sqlalchemy import create_engine
+from sqlalchemy import DateTime
+from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
     declared_attr,
     mapped_column,
-    scoped_session,
-    sessionmaker,
 )
 
-load_dotenv()
+from core.config import settings
+
+DATABASE_URL = settings.get_db_url()
+
+engine = create_async_engine(url=DATABASE_URL, echo=False)
+async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 
-class Base(DeclarativeBase):
+class Base(AsyncAttrs, DeclarativeBase):
     __abstract__ = True
 
     @declared_attr.directive
@@ -22,11 +25,13 @@ class Base(DeclarativeBase):
         return f"{cls.__name__.lower()}s"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-
-
-db_url = os.getenv('DB_URL')
-if db_url is None:
-    raise ValueError("Database URL cannot be None")
-
-engine = create_engine(db_url, echo=False)
-db_session = scoped_session(sessionmaker(bind=engine))
+    name: Mapped[str]
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(),
+        default=datetime.datetime.now(datetime.UTC),
+    )
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(),
+        default=datetime.datetime.now(datetime.UTC),
+        onupdate=datetime.datetime.now(datetime.UTC),
+    )
