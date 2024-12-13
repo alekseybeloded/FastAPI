@@ -13,6 +13,10 @@ class InjuryCreate(InjuryBase):
     player_id: int
 
 
+class InjuryUpdate(InjuryCreate):
+    pass
+
+
 class Injury(InjuryCreate):
     model_config = ConfigDict(from_attributes=True)
 

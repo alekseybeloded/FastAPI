@@ -13,6 +13,10 @@ class PlayerCreate(PlayerBase):
     team_id: int
 
 
+class PlayerUpdate(PlayerCreate):
+    pass
+
+
 class Player(PlayerCreate):
     model_config = ConfigDict(from_attributes=True)
 

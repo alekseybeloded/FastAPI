@@ -13,6 +13,10 @@ class TeamCreate(TeamBase):
     pass
 
 
+class TeamUpdate(TeamCreate):
+    pass
+
+
 class Team(TeamCreate):
     model_config = ConfigDict(from_attributes=True)
 
