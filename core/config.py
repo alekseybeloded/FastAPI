@@ -4,7 +4,7 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Settings(BaseSettings):
+class Setting(BaseSettings):
     DB_USER: str
     DB_PASSWORD: str
     DB_HOST: str
@@ -21,5 +21,7 @@ class Settings(BaseSettings):
             f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         )
 
+    db_echo: bool = False
 
-settings = Settings()
+
+settings = Setting()
