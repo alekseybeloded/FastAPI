@@ -5,8 +5,6 @@ from pydantic import BaseModel, ConfigDict
 
 class TeamBase(BaseModel):
     name: str
-    created_at: date
-    updated_at: date
 
 
 class TeamCreate(TeamBase):
