@@ -3,7 +3,7 @@ from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models.team import Team as TeamModel
-from teams.schemas import Team, TeamCreate, TeamUpdate
+from teams.schemas import TeamCreate, TeamUpdate
 
 
 async def add(team: TeamCreate, session: AsyncSession, ) -> TeamModel:
@@ -41,7 +41,7 @@ async def update(
 
 
 async def delete(
+    team: TeamModel,
     session: AsyncSession,
-    team: Team
 ) -> None:
     await session.delete(team)
