@@ -45,3 +45,4 @@ async def delete(
     session: AsyncSession,
 ) -> None:
     await session.delete(team)
+    await session.commit()
