@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.db_helper import db_helper
@@ -17,7 +17,7 @@ async def get_teams(
     return await crud.get_all(session)
 
 
-@router.get("{team_id}/", response_model=Team)
+@router.get("/{team_id}/", response_model=Team)
 async def get_team(
     team: TeamModel = Depends(get_team_by_id),
     session: AsyncSession = Depends(db_helper.session_dependency),
@@ -25,7 +25,11 @@ async def get_team(
     return team
 
 
-@router.post("/", response_model=Team)
+@router.post(
+    "/",
+    response_model=Team,
+    status_code=status.HTTP_201_CREATED,
+)
 async def add_team(
     team: TeamCreate,
     session: AsyncSession = Depends(db_helper.session_dependency),
@@ -33,7 +37,7 @@ async def add_team(
     return await crud.add(team, session)
 
 
-@router.put("/{team_id}", response_model=Team)
+@router.put("/{team_id}/", response_model=Team)
 async def update_team(
     team_update: TeamUpdate,
     team: TeamModel = Depends(get_team_by_id),
@@ -42,7 +46,10 @@ async def update_team(
     return await crud.update(team_update, team, session)
 
 
-@router.delete("/{team_id}")
+@router.delete(
+    "/{team_id}/",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 async def delete_team(
     team: TeamModel = Depends(get_team_by_id),
     session: AsyncSession = Depends(db_helper.session_dependency)
