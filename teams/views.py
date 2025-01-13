@@ -14,7 +14,7 @@ router = APIRouter(prefix="/teams", tags=["Teams"])
 async def get_teams(
     session: AsyncSession = Depends(db_helper.session_dependency),
 ) -> list[TeamModel]:
-    return await crud.get_all(session)
+    return await crud.get_all(session=session)
 
 
 @router.get("/{team_id}/", response_model=Team)
@@ -34,7 +34,10 @@ async def add_team(
     team: TeamCreate,
     session: AsyncSession = Depends(db_helper.session_dependency),
 ) -> TeamModel:
-    return await crud.add(team, session)
+    return await crud.add(
+        team=team,
+        session=session,
+    )
 
 
 @router.put("/{team_id}/", response_model=Team)
@@ -43,7 +46,11 @@ async def update_team(
     team: TeamModel = Depends(get_team_by_id),
     session: AsyncSession = Depends(db_helper.session_dependency),
 ) -> TeamModel:
-    return await crud.update(team_update, team, session)
+    return await crud.update(
+        team_update=team_update,
+        team=team,
+        session=session,
+    )
 
 
 @router.delete(
@@ -54,4 +61,7 @@ async def delete_team(
     team: TeamModel = Depends(get_team_by_id),
     session: AsyncSession = Depends(db_helper.session_dependency)
 ) -> None:
-    await crud.delete(team, session)
+    await crud.delete(
+        team=team,
+        session=session,
+    )
