@@ -1,27 +1,51 @@
-import os
-from pathlib import Path
-
+from pydantic import BaseModel, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+class RunConfig(BaseModel):
+    host: str = "0.0.0.0"
+    port: int = 8000
+
+
+class ApiV1Prefix(BaseModel):
+    prefix: str = "/v1"
+    teams: str = "/teams"
+    players: str = "/players"
+    injuries: str = "/injuries"
+
+
+class ApiPrefix(BaseModel):
+    prefix: str = "/api"
+    v1: ApiV1Prefix = ApiV1Prefix()
+
+
+class DatabaseConfig(BaseModel):
+    url: PostgresDsn
+    echo: bool = False
+    echo_pool: bool = False
+    pool_size: int = 5
+    max_overflow: int = 10
+
+    naming_convection: dict[str, str] = {
+        "ix": "ix_%(column_0_label)s",
+        "uq": "uq_%(table_name)s_%(column_0_name)s",
+        "ck": "ck_%(table_name)s_%(constraint_name)s",
+        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+        "pk": "pk_%(table_name)s",
+    }
+
+
 class Setting(BaseSettings):
-    DB_USER: str
-    DB_PASSWORD: str
-    DB_HOST: str
-    DB_PORT: int
-    DB_NAME: str
-
     model_config = SettingsConfigDict(
-        env_file=os.path.join(Path(__file__).parent, ".env"),
+        env_file=".env",
+        case_sensitive=False,
+        env_nested_delimiter="__",
+        env_prefix="APP_CONFIG__",
+
     )
-
-    def get_db_url(self) -> str:
-        return (
-            f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@"
-            f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-        )
-
-    db_echo: bool = False
+    run: RunConfig = RunConfig()
+    api: ApiPrefix = ApiPrefix()
+    db: DatabaseConfig
 
 
 settings = Setting()
