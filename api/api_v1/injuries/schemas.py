@@ -1,12 +1,8 @@
-from datetime import date
-
 from pydantic import BaseModel, ConfigDict
 
 
 class InjuryBase(BaseModel):
     name: str
-    created_at: date
-    updated_at: date
 
 
 class InjuryCreate(InjuryBase):
@@ -17,7 +13,7 @@ class InjuryUpdate(InjuryCreate):
     pass
 
 
-class Injury(InjuryCreate):
+class InjuryRead(InjuryCreate):
     model_config = ConfigDict(from_attributes=True)
 
     id: int

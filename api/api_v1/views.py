@@ -1,3 +1,5 @@
+from fastapi import Body
+
 from typing import Annotated, Generic
 
 from fastapi import APIRouter, Depends, status
@@ -71,8 +73,8 @@ class ViewsBase(Generic[TModelViews, TCreateSchema, TReadSchema, TUpdateSchema])
 
     async def create(
         self,
-        item: TCreateSchema,
         session: Annotated[AsyncSession, Depends(db_helper.session_dependency)],
+        item: TCreateSchema = Body(...),
     ) -> TReadSchema:
         created_item: TModelCrud = await self.crud.add(
             obj=item,
