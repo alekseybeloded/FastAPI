@@ -3,14 +3,20 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from core.models.base import Base
+from core.models import Base
+from core.models.injury import Injury
+from core.models.mixins.name import NameMixin
+from core.models.mixins.timestamp import TimestampMixin
 
 if TYPE_CHECKING:
-    from core.models.injury import Injury
     from core.models.team import Team
 
 
-class Player(Base):
+class Player(
+    NameMixin,
+    TimestampMixin,
+    Base,
+):
 
     team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"))
 

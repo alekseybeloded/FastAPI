@@ -47,7 +47,7 @@ extend-exclude = '''
 # Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
 # McCabe complexity (`C901`) by default.
 lint.select = ["E", "E3", "F", "B", "I", "W", "UP", "T20"]
-lint.ignore = ["B905"]
+lint.ignore = ["B905", "B008"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 lint.fixable = ["ALL"]
@@ -84,6 +84,7 @@ exclude = [
     "settings.py",
     "test_*.py",
     "conftest.py",
+    "alembic",
     ]
 
 line-length = 100

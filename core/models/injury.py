@@ -1,15 +1,24 @@
 from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 
-from core.models.base import Base
+from core.models import Base
+from core.models.mixins.name import NameMixin
+from core.models.mixins.timestamp import TimestampMixin
 
 if TYPE_CHECKING:
     from core.models.player import Player
 
 
-class Injury(Base):
+class Injury(
+    NameMixin,
+    TimestampMixin,
+    Base,
+):
+    @declared_attr.directive
+    def __tablename__(cls) -> str:
+        return "injuries"
 
     player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), unique=True)
 
