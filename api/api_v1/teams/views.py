@@ -3,11 +3,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.api_v1.crud import team_cru
+from api.api_v1.teams import crud
 from api.api_v1.teams.schemas import TeamCreate, TeamRead, TeamUpdate
-from api.api_v1.views import ViewsBase
 from core.models import db_helper
-from core.models.team import Team as TeamModel
 
 router = APIRouter()
 
@@ -24,7 +22,7 @@ async def add_team(
         Depends(db_helper.session_dependency),
     ]
 ) -> TeamRead:
-    team_model = await crud.add(create_item=team)
+    team_model = await crud.add(obj=team, session=session)
     return TeamRead.model_validate(team_model)
 
 
@@ -45,21 +43,6 @@ async def get_teams(
     "{team_id}/",
     response_model=TeamRead,
 )
-async def get_team_by_id(
-    team_id: int,
-    session: Annotated[
-        AsyncSession,
-        Depends(db_helper.session_dependency),
-    ],
-) -> TeamRead:
-    team_model = await crud.get_by_id(item_id=team_id)
-    return TeamRead.model_validate(team_model)
-
-
-@router.put(
-    "{team_id}/",
-    response_model=TeamRead,
-)
 async def get_team(
     team_id: int,
     session: Annotated[
@@ -67,8 +50,25 @@ async def get_team(
         Depends(db_helper.session_dependency),
     ],
 ) -> TeamRead:
+    team_model = await crud.get_by_id(obj_id=team_id, session=session)
+    return TeamRead.model_validate(team_model)
+
+
+@router.put(
+    "{team_id}/",
+    response_model=TeamRead,
+)
+async def update_team(
+    team_id: int,
+    team_update: TeamUpdate,
+    session: Annotated[
+        AsyncSession,
+        Depends(db_helper.session_dependency),
+    ],
+) -> TeamRead:
     team_model = crud.update(
-        item_id=team_id,
+        obj_id=team_id,
+        obj_update=team_update,
         session=session,
     )
     return TeamRead.model_validate(team_model)
@@ -86,20 +86,6 @@ async def delete_team(
     ],
 ) -> None:
     await crud.delete(
-        item_id=team_id,
+        obj_id=team_id,
         session=session,
     )
-
-
-team_views = ViewsBase[
-    TeamModel,
-    TeamCreate,
-    TeamRead,
-    TeamUpdate,
-](
-    model=TeamModel,
-    crud=team_crud,
-    read_schema=TeamRead,
-    create_schema=TeamCreate,
-    update_schema=TeamUpdate,
-)

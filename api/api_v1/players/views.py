@@ -1,17 +1,91 @@
-from api.api_v1.crud import player_crud
-from api.api_v1.players.schemas import PlayerCreate, PlayerRead, PlayerUpdate
-from api.api_v1.views import ViewsBase
-from core.models.player import Player as PlayerModel
+from typing import Annotated
 
-player_views = ViewsBase[
-    PlayerModel,
-    PlayerCreate,
-    PlayerRead,
-    PlayerUpdate
-](
-    model=PlayerModel,
-    crud=player_crud,
-    read_schema=PlayerRead,
-    create_schema=PlayerCreate,
-    update_schema=PlayerUpdate,
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from api.api_v1.players import crud
+from api.api_v1.players.schemas import PlayerCreate, PlayerRead, PlayerUpdate
+from core.models import db_helper
+from fastapi import APIRouter, Depends, status
+
+router = APIRouter()
+
+
+@router.post(
+    "/",
+    response_model=PlayerRead,
+    status_code=status.HTTP_201_CREATED,
 )
+async def add_player(
+    player: PlayerCreate,
+    session: Annotated[
+        AsyncSession,
+        Depends(db_helper.session_dependency),
+    ]
+) -> PlayerRead:
+    player_model = await crud.add(obj=player, session=session)
+    return PlayerRead.model_validate(player_model)
+
+
+@router.get(
+    "/",
+    response_model=list[PlayerRead],
+)
+async def get_players(
+    session: Annotated[
+        AsyncSession, Depends(db_helper.session_dependency),
+    ]
+) -> list[PlayerRead]:
+    player_models = await crud.get_all(session=session)
+    return [PlayerRead.model_validate(team) for team in player_models]
+
+
+@router.get(
+    "{player_id}/",
+    response_model=PlayerRead,
+)
+async def get_player(
+    player_id: int,
+    session: Annotated[
+        AsyncSession,
+        Depends(db_helper.session_dependency),
+    ],
+) -> PlayerRead:
+    player_model = await crud.get_by_id(obj_id=player_id, session=session)
+    return PlayerRead.model_validate(player_model)
+
+
+@router.put(
+    "{player_id}/",
+    response_model=PlayerRead,
+)
+async def update_player(
+    team_id: int,
+    team_update: PlayerUpdate,
+    session: Annotated[
+        AsyncSession,
+        Depends(db_helper.session_dependency),
+    ],
+) -> PlayerRead:
+    player_model = crud.update(
+        obj_id=team_id,
+        obj_update=team_update,
+        session=session,
+    )
+    return PlayerRead.model_validate(player_model)
+
+
+@router.delete(
+    "{player_id}/",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_player(
+    player_id: int,
+    session: Annotated[
+        AsyncSession,
+        Depends(db_helper.session_dependency),
+    ],
+) -> None:
+    await crud.delete(
+        obj_id=player_id,
+        session=session,
+    )
