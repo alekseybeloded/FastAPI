@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.api_v1.teams import crud
@@ -49,8 +49,10 @@ async def get_team(
         AsyncSession,
         Depends(db_helper.session_dependency),
     ],
-) -> TeamRead:
+) -> TeamRead | None:
     team_model = await crud.get_by_id(obj_id=team_id, session=session)
+    if not team_model:
+        raise HTTPException(status_code=404, detail="This id doesn't exist")
     return TeamRead.model_validate(team_model)
 
 
@@ -66,11 +68,13 @@ async def update_team(
         Depends(db_helper.session_dependency),
     ],
 ) -> TeamRead:
-    team_model = crud.update(
+    team_model = await crud.update(
         obj_id=team_id,
         obj_update=team_update,
         session=session,
     )
+    if not team_model:
+        raise HTTPException(status_code=404, detail="This id doesn't exist")
     return TeamRead.model_validate(team_model)
 
 

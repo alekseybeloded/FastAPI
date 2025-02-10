@@ -52,7 +52,7 @@ async def delete(
     obj_id: int,
     session: AsyncSession,
 ) -> None:
-    obj_model = session.get(InjuryModel, obj_id)
+    obj_model = await session.get(InjuryModel, obj_id)
 
     await session.delete(obj_model)
     await session.commit()
