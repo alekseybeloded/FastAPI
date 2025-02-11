@@ -1,11 +1,11 @@
 from typing import Annotated
 
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.api_v1.players import crud
 from api.api_v1.players.schemas import PlayerCreate, PlayerRead, PlayerUpdate
 from core.models import db_helper
-from fastapi import APIRouter, Depends, status, HTTPException
 
 router = APIRouter()
 
@@ -51,8 +51,6 @@ async def get_player(
     ],
 ) -> PlayerRead:
     player_model = await crud.get_by_id(obj_id=player_id, session=session)
-    if not player_model:
-        raise HTTPException(status_code=404, detail="This id doesn't exist")
     return PlayerRead.model_validate(player_model)
 
 
@@ -73,8 +71,6 @@ async def update_player(
         obj_update=player_update,
         session=session,
     )
-    if not player_model:
-        raise HTTPException(status_code=404, detail="This id doesn't exist")
     return PlayerRead.model_validate(player_model)
 
 

@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,7 +29,9 @@ async def get_by_id(
     obj_id: int,
     session: AsyncSession
 ) -> TeamModel | None:
-    return await session.get(TeamModel, obj_id)
+    obj_model = await session.get(TeamModel, obj_id)
+    if not obj_model:
+        raise HTTPException(status_code=404, detail="This id doesn't exist")
 
 
 async def update(
@@ -37,8 +40,8 @@ async def update(
     session: AsyncSession,
 ) -> TeamModel | None:
     obj_model = await session.get(TeamModel, obj_id)
-    if obj_model is None:
-        return None
+    if not obj_model:
+        raise HTTPException(status_code=404, detail="This id doesn't exist")
 
     for name, value in obj_update.model_dump().items():
         setattr(obj_model, name, value)
@@ -53,6 +56,8 @@ async def delete(
     session: AsyncSession,
 ) -> None:
     obj_model = await session.get(TeamModel, obj_id)
+    if not obj_model:
+        raise HTTPException(status_code=404, detail="This id doesn't exist")
 
     await session.delete(obj_model)
     await session.commit()

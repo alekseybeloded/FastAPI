@@ -1,11 +1,11 @@
 from typing import Annotated
 
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.api_v1.injuries import crud
 from api.api_v1.injuries.schemas import InjuryCreate, InjuryRead, InjuryUpdate
 from core.models import db_helper
-from fastapi import APIRouter, Depends, status, HTTPException
 
 router = APIRouter()
 
@@ -38,8 +38,6 @@ async def get_injury(
     ],
 ) -> InjuryRead:
     injury_model = await crud.get_by_id(obj_id=injury_id, session=session)
-    if not injury_model:
-        raise HTTPException(status_code=404, detail="This id doesn't exist")
     return InjuryRead.model_validate(injury_model)
 
 
@@ -74,8 +72,6 @@ async def update_injury(
         obj_update=injury_update,
         session=session
     )
-    if not updated_injury_model:
-        raise HTTPException(status_code=404, detail="This id doesn't exist")
     return InjuryRead.model_validate(updated_injury_model)
 
 
